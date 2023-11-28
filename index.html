@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>运费计算器</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f7f7f7;
+      }
+      .container {
+        width: 600px;
+        padding: 20px;
+        background-color: white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .input-group {
+        margin-bottom: 10px;
+      }
+      .input-group label {
+        display: block;
+        margin-bottom: 5px;
+      }
+      .input-group input {
+        width: 50px;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      .dimensions,
+      .options {
+        display: flex;
+        justify-content: space-between;
+      }
+      .dimension,
+      .option {
+        flex: 1;
+        padding: 0 10px;
+      }
+      .dimension:first-child,
+      .option:first-child {
+        padding-left: 0;
+      }
+      .dimension:last-child,
+      .option:last-child {
+        padding-right: 0;
+      }
+      .input-group input[type="radio"],
+      .input-group input[type="checkbox"] {
+        width: auto;
+      }
+      button {
+        width: 30%;
+        padding: 10px;
+        border: none;
+        background-color: #0056b3;
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 10px;
+      }
+      button:hover {
+        background-color: #004494;
+      }
+      #result,
+      #calculation {
+        margin-top: 20px;
+      }
+      #result {
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>顺丰国际运费计算器</h1>
+      <div class="input-group options">
+        <div class="option">
+          <label for="pickupFee">取件费 (CAD):</label>
+          <input type="number" id="pickupFee" value="0" min="0" />
+        </div>
+        <div class="option">
+          <label><input type="checkbox" id="hst" />HST (+13%)</label>
+        </div>
+      </div>
+      <div class="input-group dimensions">
+        <div class="dimension">
+          <label for="length">长 (in):</label>
+          <input type="number" id="length" required />
+        </div>
+        <div class="dimension">
+          <label for="width">宽 (in):</label>
+          <input type="number" id="width" required />
+        </div>
+        <div class="dimension">
+          <label for="height">高 (in):</label>
+          <input type="number" id="height" required />
+        </div>
+        <div class="dimension">
+          <label for="quantity">数量:</label>
+          <input type="number" id="quantity" required min="1" value="1" />
+        </div>
+      </div>
+      <div class="input-group">
+        <label
+          ><input
+            type="radio"
+            name="speed"
+            value="lowValue"
+          />低价值包裹：首磅6.5，续磅6.5 CAD</label
+        >
+        <label
+          ><input
+            type="radio"
+            name="speed"
+            value="slow"
+            checked
+          />特快和回国行李：首磅20，续磅6.5 CAD</label
+        >
+        <label
+          ><input
+            type="radio"
+            name="speed"
+            value="fast"
+          />大宗行李：首磅20，续磅8 CAD</label
+        >
+      </div>
+      <button id="calculate">计算运费</button>
+      <button id="reset">重置</button>
+      <h5>疫情期间每个包裹加收5 CAD</h5>
+      <div id="allCalculations"></div>
+      <div id="result"></div>
+    </div>
+
+    <script>
+      let accumulatedCost = 0;
+      let calculationCount = 0;
+      let allCalculationsString = "";
+
+      function calculateShippingCost(length, width, height, speed, quantity) {
+        let volumeFactor = Math.ceil((length * width * height) / 139) - 1;
+
+        let additionalCost;
+        switch (speed) {
+          case "slow":
+            additionalCost = 6.5;
+            break;
+          case "fast":
+            additionalCost = 8;
+            break;
+          case "lowValue":
+            additionalCost = 6.5;
+            break;
+          default:
+            additionalCost = 6.5;
+        }
+
+        const baseRate = speed === "lowValue" ? 11.5 : 25;
+        let totalCost = (volumeFactor * additionalCost + baseRate) * quantity;
+        return [totalCost, volumeFactor, additionalCost, baseRate];
+      }
+
+      function updateGroupCalculations(
+        calculationDetails,
+        groupNumber,
+        quantity
+      ) {
+        const [groupCost, volumeFactor, additionalCost, baseRate] =
+          calculationDetails;
+        const calculationString = `组${groupNumber}: (${volumeFactor}LB * ${additionalCost} + ${baseRate}首磅和疫情包裹费) * ${quantity}箱 = ${groupCost.toFixed(
+          2
+        )} CAD`;
+        allCalculationsString += `组${groupNumber} + `;
+        const allCalculationsDiv = document.getElementById("allCalculations");
+        allCalculationsDiv.innerHTML += calculationString + "<br>";
+      }
+
+      document
+        .getElementById("calculate")
+        .addEventListener("click", function () {
+          const length = parseFloat(document.getElementById("length").value);
+          const width = parseFloat(document.getElementById("width").value);
+          const height = parseFloat(document.getElementById("height").value);
+          const speed = document.querySelector(
+            'input[name="speed"]:checked'
+          ).value;
+          const quantity =
+            parseInt(document.getElementById("quantity").value) || 1;
+
+          if (!length || !width || !height) {
+            alert("请输入有效的长、宽、高值！");
+            return;
+          }
+
+          const calculationDetails = calculateShippingCost(
+            length,
+            width,
+            height,
+            speed,
+            quantity
+          );
+          accumulatedCost += calculationDetails[0];
+          calculationCount++;
+          updateGroupCalculations(
+            calculationDetails,
+            calculationCount,
+            quantity
+          );
+        });
+
+      document.getElementById("reset").addEventListener("click", function () {
+        accumulatedCost = 0;
+        calculationCount = 0;
+        allCalculationsString = "";
+        document.getElementById("allCalculations").innerHTML = "";
+        document.getElementById("result").innerText = "";
+      });
+
+      // 新增：计算总费用按钮和逻辑
+      const totalButton = document.createElement("button");
+      totalButton.textContent = "计算总运费";
+      totalButton.addEventListener("click", function () {
+        const pickupFee =
+          parseInt(document.getElementById("pickupFee").value) || 0;
+        const hst = document.getElementById("hst").checked;
+        let totalCost = accumulatedCost + pickupFee;
+        let totalCalculationString = `总运费是：(${allCalculationsString}${pickupFee.toString()}取件费)`;
+        if (hst) {
+          totalCost *= 1.13;
+          totalCalculationString += " * 1.13 HST";
+        }
+        totalCalculationString += ` = ${totalCost.toFixed(2)} CAD`;
+        document.getElementById("result").innerText = totalCalculationString;
+      });
+      document.querySelector(".container").appendChild(totalButton);
+    </script>
+  </body>
+</html>
