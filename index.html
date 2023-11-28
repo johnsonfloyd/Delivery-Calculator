@@ -175,7 +175,7 @@
       ) {
         const [groupCost, volumeFactor, additionalCost, baseRate] =
           calculationDetails;
-        const calculationString = `组${groupNumber}: (${volumeFactor}LB * ${additionalCost} + ${baseRate}首磅和疫情包裹费) * ${quantity}箱 = ${groupCost.toFixed(
+        const calculationString = `组${groupNumber}: (${volumeFactor}LB * ${additionalCost} + ${baseRate}) * ${quantity}箱 = ${groupCost.toFixed(
           2
         )} CAD`;
         allCalculationsString += `组${groupNumber} + `;
