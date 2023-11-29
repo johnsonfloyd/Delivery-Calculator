@@ -175,10 +175,10 @@
       ) {
         const [groupCost, volumeFactor, additionalCost, baseRate] =
           calculationDetails;
-        const calculationString = `组${groupNumber}: (${volumeFactor}LB * ${additionalCost} + ${baseRate}) * ${quantity}箱 = ${groupCost.toFixed(
+        const calculationString = `尺寸${groupNumber}: (${volumeFactor}LB * ${additionalCost} + ${baseRate}) * ${quantity}箱 = ${groupCost.toFixed(
           2
         )} CAD`;
-        allCalculationsString += `组${groupNumber} + `;
+        allCalculationsString += `尺寸${groupNumber} + `;
         const allCalculationsDiv = document.getElementById("allCalculations");
         allCalculationsDiv.innerHTML += calculationString + "<br>";
       }
