@@ -175,10 +175,14 @@
       ) {
         const [groupCost, volumeFactor, additionalCost, baseRate] =
           calculationDetails;
-        const calculationString = `尺寸${groupNumber}: (${volumeFactor}LB * ${additionalCost} + ${baseRate}) * ${quantity}箱 = ${groupCost.toFixed(
+        const calculationString = `运费${groupNumber}: (${volumeFactor}LB * ${additionalCost} + ${baseRate}) * ${quantity}箱 = ${groupCost.toFixed(
           2
         )} CAD`;
-        allCalculationsString += `尺寸${groupNumber} + `;
+        // 在添加新的运费计算之前，如果已有计算，则添加加号
+        if (allCalculationsString.length > 0) {
+          allCalculationsString += " + ";
+        }
+        allCalculationsString += `运费${groupNumber}`;
         const allCalculationsDiv = document.getElementById("allCalculations");
         allCalculationsDiv.innerHTML += calculationString + "<br>";
       }
@@ -229,15 +233,21 @@
       totalButton.textContent = "计算总运费";
       totalButton.addEventListener("click", function () {
         const pickupFee =
-          parseInt(document.getElementById("pickupFee").value) || 0;
+          parseFloat(document.getElementById("pickupFee").value) || 0;
         const hst = document.getElementById("hst").checked;
-        let totalCost = accumulatedCost + pickupFee;
-        let totalCalculationString = `总运费是：(${allCalculationsString}${pickupFee.toString()}取件费)`;
+
+        let totalCost = accumulatedCost; // 先计算累积的运费
+        let totalCalculationString = `总运费是：(${allCalculationsString}`;
         if (hst) {
-          totalCost *= 1.13;
-          totalCalculationString += " * 1.13 HST";
+          totalCost *= 1.13; // 如果选择HST，则乘以1.13
+          totalCalculationString += `)* 1.13 HST`;
+        }
+        if (pickupFee > 0) {
+          totalCost += pickupFee; // 最后加上取件费
+          totalCalculationString += ` + ${pickupFee}取件费`;
         }
         totalCalculationString += ` = ${totalCost.toFixed(2)} CAD`;
+
         document.getElementById("result").innerText = totalCalculationString;
       });
       document.querySelector(".container").appendChild(totalButton);
