@@ -208,19 +208,21 @@
           const length = parseFloat(document.getElementById("length").value);
           const width = parseFloat(document.getElementById("width").value);
           const height = parseFloat(document.getElementById("height").value);
+          const directWeight = parseFloat(
+            document.getElementById("weight").value
+          );
           const speed = document.querySelector(
             'input[name="speed"]:checked'
           ).value;
           const quantity =
             parseInt(document.getElementById("quantity").value) || 1;
-          const directWeight =
-            parseFloat(document.getElementById("weight").value) || 0;
 
           // 检查是否同时输入了长宽高和重量
           if (length && width && height && directWeight) {
             alert("只能输入长宽高或者重量其中一个！");
             return;
           }
+
           // 检查是否输入了长宽高或重量
           if ((!length || !width || !height) && !directWeight) {
             alert("请输入有效的长、宽、高值或者重量！");
@@ -251,6 +253,30 @@
         document.getElementById("allCalculations").innerHTML = "";
         document.getElementById("result").innerText = "";
       });
+
+      // 新增的计算总费用逻辑
+      const totalButton = document.createElement("button");
+      totalButton.textContent = "计算总运费";
+      totalButton.addEventListener("click", function () {
+        const pickupFee =
+          parseFloat(document.getElementById("pickupFee").value) || 0;
+        const hst = document.getElementById("hst").checked;
+
+        let totalCost = accumulatedCost; // 先计算累积的运费
+        let totalCalculationString = `总运费是：(${allCalculationsString}）`;
+        if (hst) {
+          totalCost *= 1.13; // 如果选择HST，则乘以1.13
+          totalCalculationString += `* 1.13 HST`;
+        }
+        if (pickupFee > 0) {
+          totalCost += pickupFee; // 最后加上取件费
+          totalCalculationString += ` + ${pickupFee}取件费`;
+        }
+        totalCalculationString += ` = ${totalCost.toFixed(2)} CAD`;
+
+        document.getElementById("result").innerText = totalCalculationString;
+      });
+      document.querySelector(".container").appendChild(totalButton);
     </script>
   </body>
 </html>
