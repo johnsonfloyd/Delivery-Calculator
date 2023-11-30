@@ -112,6 +112,7 @@
       <div class="input-group weight">
         <label for="weight">重量 (lb):</label>
         <input type="number" id="weight" min="0" />
+        <button id="clearDimensions">清除长宽高数据</button>
       </div>
       <div class="input-group">
         <label
@@ -139,7 +140,8 @@
       </div>
       <button id="calculate">计算运费</button>
       <button id="reset">重置</button>
-      <h5>疫情期间每个包裹加收5 CAD</h5>
+      <h5>PS：疫情期间每个包裹加收5CAD，加上每个包裹首磅一共25CAD</h5>
+      <div id="totalBoxes">总箱数: 0</div>
       <div id="allCalculations"></div>
       <div id="result"></div>
     </div>
@@ -148,6 +150,7 @@
       let accumulatedCost = 0;
       let calculationCount = 0;
       let allCalculationsString = "";
+      let totalBoxes = 0; // 添加用于累积总箱数的变量
 
       function calculateShippingCost(
         length,
@@ -216,7 +219,12 @@
           ).value;
           const quantity =
             parseInt(document.getElementById("quantity").value) || 1;
-
+          // 更新总箱数
+          totalBoxes +=
+            parseInt(document.getElementById("quantity").value) || 0;
+          document.getElementById(
+            "totalBoxes"
+          ).innerText = `总箱数: ${totalBoxes}`;
           // 检查是否同时输入了长宽高和重量
           if (length && width && height && directWeight) {
             alert("只能输入长宽高或者重量其中一个！");
@@ -244,6 +252,14 @@
             calculationCount,
             quantity
           );
+        });
+      // 清除长宽高数据
+      document
+        .getElementById("clearDimensions")
+        .addEventListener("click", function () {
+          document.getElementById("length").value = "";
+          document.getElementById("width").value = "";
+          document.getElementById("height").value = "";
         });
 
       document.getElementById("reset").addEventListener("click", function () {
