@@ -109,6 +109,10 @@
           <input type="number" id="quantity" required min="1" value="1" />
         </div>
       </div>
+      <div class="input-group weight">
+        <label for="weight">重量 (lb):</label>
+        <input type="number" id="weight" min="0" />
+      </div>
       <div class="input-group">
         <label
           ><input
@@ -145,8 +149,20 @@
       let calculationCount = 0;
       let allCalculationsString = "";
 
-      function calculateShippingCost(length, width, height, speed, quantity) {
-        let volumeFactor = Math.ceil((length * width * height) / 139) - 1;
+      function calculateShippingCost(
+        length,
+        width,
+        height,
+        speed,
+        quantity,
+        directWeight
+      ) {
+        let volumeFactor;
+        if (directWeight !== undefined && directWeight > 0) {
+          volumeFactor = directWeight - 1; // 如果直接输入重量，使用该重量
+        } else {
+          volumeFactor = Math.ceil((length * width * height) / 139) - 1;
+        }
 
         let additionalCost;
         switch (speed) {
@@ -178,7 +194,6 @@
         const calculationString = `运费${groupNumber}: (${volumeFactor}LB * ${additionalCost} + ${baseRate}) * ${quantity}箱 = ${groupCost.toFixed(
           2
         )} CAD`;
-        // 在添加新的运费计算之前，如果已有计算，则添加加号
         if (allCalculationsString.length > 0) {
           allCalculationsString += " + ";
         }
@@ -198,9 +213,17 @@
           ).value;
           const quantity =
             parseInt(document.getElementById("quantity").value) || 1;
+          const directWeight =
+            parseFloat(document.getElementById("weight").value) || 0;
 
-          if (!length || !width || !height) {
-            alert("请输入有效的长、宽、高值！");
+          // 检查是否同时输入了长宽高和重量
+          if (length && width && height && directWeight) {
+            alert("只能输入长宽高或者重量其中一个！");
+            return;
+          }
+          // 检查是否输入了长宽高或重量
+          if ((!length || !width || !height) && !directWeight) {
+            alert("请输入有效的长、宽、高值或者重量！");
             return;
           }
 
@@ -209,7 +232,8 @@
             width,
             height,
             speed,
-            quantity
+            quantity,
+            directWeight
           );
           accumulatedCost += calculationDetails[0];
           calculationCount++;
@@ -227,30 +251,6 @@
         document.getElementById("allCalculations").innerHTML = "";
         document.getElementById("result").innerText = "";
       });
-
-      // 新增：计算总费用按钮和逻辑
-      const totalButton = document.createElement("button");
-      totalButton.textContent = "计算总运费";
-      totalButton.addEventListener("click", function () {
-        const pickupFee =
-          parseFloat(document.getElementById("pickupFee").value) || 0;
-        const hst = document.getElementById("hst").checked;
-
-        let totalCost = accumulatedCost; // 先计算累积的运费
-        let totalCalculationString = `总运费是：(${allCalculationsString}`;
-        if (hst) {
-          totalCost *= 1.13; // 如果选择HST，则乘以1.13
-          totalCalculationString += `)* 1.13 HST`;
-        }
-        if (pickupFee > 0) {
-          totalCost += pickupFee; // 最后加上取件费
-          totalCalculationString += ` + ${pickupFee}取件费`;
-        }
-        totalCalculationString += ` = ${totalCost.toFixed(2)} CAD`;
-
-        document.getElementById("result").innerText = totalCalculationString;
-      });
-      document.querySelector(".container").appendChild(totalButton);
     </script>
   </body>
 </html>
