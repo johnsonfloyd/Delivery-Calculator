@@ -142,6 +142,7 @@
       <button id="reset">重置</button>
       <h5>PS：疫情期间每个包裹加收5CAD，加上每个包裹首磅一共25CAD</h5>
       <div id="totalBoxes">总箱数: 0</div>
+      <div id="totalWeight">总磅数: 0</div>
       <div id="allCalculations"></div>
       <div id="result"></div>
     </div>
@@ -151,6 +152,7 @@
       let calculationCount = 0;
       let allCalculationsString = "";
       let totalBoxes = 0; // 添加用于累积总箱数的变量
+      let totalWeight = 0; // 新增用于累积总重量的变量
 
       function calculateShippingCost(
         length,
@@ -252,6 +254,14 @@
             calculationCount,
             quantity
           );
+          let groupWeight =
+            directWeight > 0
+              ? directWeight
+              : Math.ceil((length * width * height) / 139);
+          totalWeight += groupWeight * quantity;
+          document.getElementById(
+            "totalWeight"
+          ).innerText = `总磅数: ${totalWeight}`;
         });
       // 清除长宽高数据
       document
@@ -266,8 +276,13 @@
         accumulatedCost = 0;
         calculationCount = 0;
         allCalculationsString = "";
+        totalBoxes = 0; // 重置总箱数
+        totalWeight = 0; // 重置总重量
         document.getElementById("allCalculations").innerHTML = "";
         document.getElementById("result").innerText = "";
+        document.getElementById("totalBoxes").innerText = "总箱数: 0";
+        document.getElementById("totalWeight").innerText = "总磅数: 0";
+        document.getElementById("weight").value = ""; // 重置重量输入框
       });
 
       // 新增的计算总费用逻辑
