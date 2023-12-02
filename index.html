@@ -119,16 +119,9 @@
           ><input
             type="radio"
             name="speed"
-            value="lowValue"
-          />低价值包裹：首磅6.5，续磅6.5 CAD</label
-        >
-        <label
-          ><input
-            type="radio"
-            name="speed"
             value="slow"
             checked
-          />特快和回国行李：首磅20，续磅6.5 CAD</label
+          />回国行李：首磅20，续磅6.5 CAD</label
         >
         <label
           ><input
@@ -141,6 +134,7 @@
       <button id="calculate">计算运费</button>
       <button id="reset">重置</button>
       <h5>PS：疫情期间每个包裹加收5CAD，加上每个包裹首磅一共25CAD</h5>
+      <div id="selectedTransportType">选择的运输类型：</div>
       <div id="totalBoxes">总箱数: 0</div>
       <div id="totalWeight">总磅数: 0</div>
       <div id="allCalculations"></div>
@@ -177,14 +171,11 @@
           case "fast":
             additionalCost = 8;
             break;
-          case "lowValue":
-            additionalCost = 6.5;
-            break;
           default:
             additionalCost = 6.5;
         }
 
-        const baseRate = speed === "lowValue" ? 11.5 : 25;
+        const baseRate = 25;
         let totalCost = (volumeFactor * additionalCost + baseRate) * quantity;
         return [totalCost, volumeFactor, additionalCost, baseRate];
       }
@@ -221,6 +212,10 @@
           ).value;
           const quantity =
             parseInt(document.getElementById("quantity").value) || 1;
+          const transportType = speed === "slow" ? "回国行李" : "大宗行李";
+          document.getElementById(
+            "selectedTransportType"
+          ).innerText = `选择的运输类型：${transportType}`;
           // 更新总箱数
           totalBoxes +=
             parseInt(document.getElementById("quantity").value) || 0;
