@@ -121,14 +121,11 @@
             name="speed"
             value="slow"
             checked
-          />回国行李：首磅20，续磅6.5 CAD</label
+          />半清关：首磅20，续磅6.5 CAD</label
         >
         <label
-          ><input
-            type="radio"
-            name="speed"
-            value="fast"
-          />大宗行李：首磅20，续磅8 CAD</label
+          ><input type="radio" name="speed" value="fast" />全清关：首磅20，续磅8
+          CAD</label
         >
       </div>
       <button id="calculate">计算运费</button>
@@ -212,7 +209,7 @@
           ).value;
           const quantity =
             parseInt(document.getElementById("quantity").value) || 1;
-          const transportType = speed === "slow" ? "回国行李" : "大宗行李";
+          const transportType = speed === "slow" ? "半清关" : "全清关";
           document.getElementById(
             "selectedTransportType"
           ).innerText = `选择的运输类型：${transportType}`;
